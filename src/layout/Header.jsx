@@ -1,35 +1,35 @@
-import { Button, Grid, GridItem, Image } from "@chakra-ui/react";
+import { Box, Flex, Text, Button, Spacer } from "@chakra-ui/react";
 import { FaGithub } from "react-icons/fa";
 import supabase from "../supabaseClient";
 
 import { useAppContext } from "../context/appContext";
-import NameForm from "./NameForm";
+
 export default function Header() {
   const { username, setUsername, randomUsername, session } = useAppContext();
 
   return (
-    <Grid
-      templateColumns="max-content 1fr min-content"
-      justifyItems="center"
-      alignItems="center"
+    <Flex
+      as="header"
       bg="white"
+      align="center"
+      justify="space-between"
+      px={4}
+      py={2}
+      boxShadow="md"
       position="sticky"
       top="0"
       zIndex="10"
-      borderBottom="20px solid #edf2f7"
     >
-      <GridItem justifySelf="start" m="2">
-        <Image src="/logo.png" height="30px" ml="2" />
-      </GridItem>
+      <Text fontSize="lg" fontWeight="bold">
+        ChatApp
+      </Text>
+      <Spacer />
       {session ? (
-        <>
-          <GridItem justifySelf="end" alignSelf="center" mr="4">
-            Welcome <strong>{username}</strong>
-          </GridItem>
+        <Flex align="center">
+          <Text mr={4}>Welcome, <strong>{username}</strong></Text>
           <Button
-            marginRight="4"
             size="sm"
-            variant="link"
+            variant="outline"
             onClick={() => {
               const { error } = supabase.auth.signOut();
               if (error) return console.error("error signOut", error);
@@ -40,29 +40,23 @@ export default function Header() {
           >
             Log out
           </Button>
-        </>
+        </Flex>
       ) : (
-        <>
-          <GridItem justifySelf="end" alignSelf="end">
-            <NameForm username={username} setUsername={setUsername} />
-          </GridItem>
-          <Button
-            size="sm"
-            marginRight="2"
-            colorScheme="teal"
-            rightIcon={<FaGithub />}
-            variant="outline"
-            onClick={() =>
-              supabase.auth.signInWithOAuth({
-                provider: "github",
-                redirectTo: window.location.origin,
-              })
-            }
-          >
-            Login
-          </Button>
-        </>
+        <Button
+          size="sm"
+          colorScheme="teal"
+          rightIcon={<FaGithub />}
+          variant="outline"
+          onClick={() =>
+            supabase.auth.signInWithOAuth({
+              provider: "github",
+              redirectTo: window.location.origin,
+            })
+          }
+        >
+          GitHub
+        </Button>
       )}
-    </Grid>
+    </Flex>
   );
 }

@@ -1,8 +1,10 @@
-import { Badge, Box, Container } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { Badge, Box, Container, Input, Button, Stack, Text } from "@chakra-ui/react";
+import { useState, useEffect } from "react";
 import { useAppContext } from "../context/appContext";
 import Messages from "./Messages";
 import { BsChevronDoubleDown } from "react-icons/bs";
+import supabase from '../supabaseClient';
+import FileUpload from './FileUpload';
 
 export default function Chat() {
   const [height, setHeight] = useState(window.innerHeight - 205);
@@ -13,11 +15,39 @@ export default function Chat() {
     isOnBottom,
     unviewedMessageCount,
   } = useAppContext();
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+
   useEffect(() => {
-    window.addEventListener("resize", () => {
-      setHeight(window.innerHeight - 205);
-    });
+    const channel = supabase
+      .channel('realtime-chat')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages'
+      }, (payload) => {
+        setMessages(prev => [...prev, payload.new]);
+      })
+      .subscribe();
+
+    const handleResize = () => setHeight(window.innerHeight - 205);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      supabase.removeChannel(channel);
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
+
+  const sendMessage = async () => {
+    if (!newMessage.trim()) return;
+    
+    const { error } = await supabase
+      .from('messages')
+      .insert({ content: newMessage });
+
+    if (!error) setNewMessage('');
+  };
 
   return (
     <Container maxW="600px" pb="20px">
@@ -36,7 +66,6 @@ export default function Chat() {
             style={{
               position: "sticky",
               bottom: 8,
-              // right: 0,
               float: "right",
               cursor: "pointer",
             }}
@@ -60,6 +89,18 @@ export default function Chat() {
             )}
           </div>
         )}
+        <Stack spacing={4} mt={4} direction="row" align="center">
+          <Input
+            flex="1"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Type your message..."
+          />
+          <Button onClick={sendMessage} colorScheme="teal" px="8">
+            Send
+          </Button>
+          <FileUpload />
+        </Stack>
       </Box>
     </Container>
   );

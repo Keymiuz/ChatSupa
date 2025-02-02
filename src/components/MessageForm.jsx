@@ -4,12 +4,12 @@ import {
   Stack,
   IconButton,
   useToast,
-  Box,
-  Container,
+  Container
 } from "@chakra-ui/react";
 import { BiSend } from "react-icons/bi";
 import { useAppContext } from "../context/appContext";
 import supabase from "../supabaseClient";
+import FileUpload from "./FileUpload";
 
 export default function MessageForm() {
   const { username, country, session } = useAppContext();
@@ -20,71 +20,50 @@ export default function MessageForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSending(true);
-    if (!message) return;
-
-    setMessage("");
-
+    
     try {
-      const { error } = await supabase.from("messages").insert([
-        {
-          text: message,
-          username,
-          country,
-          is_authenticated: session ? true : false,
-        },
-      ]);
+      const { error } = await supabase.from("messages").insert([{
+        text: message,
+        username,
+        country,
+        is_authenticated: session ? true : false
+      }]);
 
-      if (error) {
-        console.error(error.message);
-        toast({
-          title: "Error sending",
-          description: error.message,
-          status: "error",
-          duration: 9000,
-          isClosable: true,
-        });
-        return;
-      }
-      console.log("Sucsessfully sent!");
+      if (error) throw error;
+      setMessage("");
+      
     } catch (error) {
-      console.log("error sending message:", error);
+      toast({
+        title: "Error sending message",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+      });
     } finally {
       setIsSending(false);
     }
   };
 
   return (
-    <Box py="10px" pt="15px" bg="gray.100">
-      <Container maxW="600px">
-        <form onSubmit={handleSubmit} autoComplete="off">
-          <Stack direction="row">
-            <Input
-              name="message"
-              placeholder="Enter a message"
-              onChange={(e) => setMessage(e.target.value)}
-              value={message}
-              bg="white"
-              border="none"
-              autoFocus
-              maxLength="500"
-            />
-            <IconButton
-              // variant="outline"
-              colorScheme="teal"
-              aria-label="Send"
-              fontSize="20px"
-              icon={<BiSend />}
-              type="submit"
-              disabled={!message}
-              isLoading={isSending}
-            />
-          </Stack>
-        </form>
-        <Box fontSize="10px" mt="1">
-          Warning: do not share any sensitive information, it's a public chat
-          room 🙂
-        </Box>
-      </Container>
-    </Box>
+    <Container maxW="600px" p={4}>
+      <form onSubmit={handleSubmit}>
+        <Stack direction="row" spacing={2}>
+          <Input
+            placeholder="Type a message..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            disabled={isSending}
+          />
+          <FileUpload />
+          <IconButton
+            type="submit"
+            aria-label="Send message"
+            icon={<BiSend />}
+            colorScheme="teal"
+            isLoading={isSending}
+          />
+        </Stack>
+      </form>
+    </Container>
   );
 }

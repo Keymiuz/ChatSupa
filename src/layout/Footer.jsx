@@ -1,6 +1,7 @@
 import { Box, Grid, GridItem } from "@chakra-ui/react";
-import { FaGithub, FaTwitter } from "react-icons/fa";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
 import MessageForm from "../components/MessageForm";
+
 export default function Footer() {
   return (
     <Box position="fixed" bottom="0" width="100%">
@@ -16,15 +17,13 @@ export default function Footer() {
         bg="white"
       >
         <GridItem justifySelf="start">
-          {/* Built by{" "} */}
-          {/* <a href="http://shimon-wosner.vercel.app" target="_blank"> */}
           <a
-            href="https://twitter.com/shwosner"
+            href="https://www.linkedin.com/in/keymius/"
             target="_blank"
             rel="noreferrer"
           >
-            <FaTwitter style={{ display: "inline" }} />
-            @shwosner
+            <FaLinkedin style={{ display: "inline", marginRight: "5px" }} />
+            João Cicolo
           </a>
         </GridItem>
         <GridItem justifySelf="end">
@@ -33,7 +32,8 @@ export default function Footer() {
             target="_blank"
             rel="noreferrer"
           >
-            <FaGithub style={{ display: "inline" }} /> Source code
+            <FaGithub style={{ display: "inline", marginRight: "5px" }} /> 
+            Source code
           </a>
         </GridItem>
       </Grid>

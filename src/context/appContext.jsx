@@ -4,6 +4,8 @@ import supabase from "../supabaseClient";
 const AppContext = createContext({});
 
 const AppContextProvider = ({ children }) => {
+  console.log("AppContextProvider initializing");
+  
   let myChannel = null;
   const [username, setUsername] = useState("");
   const [session, setSession] = useState(null);
@@ -12,19 +14,75 @@ const AppContextProvider = ({ children }) => {
   const [loadingInitial, setLoadingInitial] = useState(true);
   const [routeHash, setRouteHash] = useState("");
   const [isOnBottom, setIsOnBottom] = useState(false);
-  const [newIncomingMessageTrigger, setNewIncomingMessageTrigger] =
-    useState(null);
+  const [newIncomingMessageTrigger, setNewIncomingMessageTrigger] = useState(null);
   const [unviewedMessageCount, setUnviewedMessageCount] = useState(0);
   const [countryCode, setCountryCode] = useState("");
   const [isInitialLoad, setIsInitialLoad] = useState(false);
 
   useEffect(() => {
-    // Effect to scroll to bottom on initial message load
-    if (isInitialLoad) {
-      setIsInitialLoad(false);
-      scrollToBottom();
+    console.log("AppContextProvider mounted");
+    try {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        initializeUser(session);
+      });
+
+      getMessagesAndSubscribe();
+
+      const storedCountryCode = localStorage.getItem("countryCode");
+      if (storedCountryCode && storedCountryCode !== "undefined")
+        setCountryCode(storedCountryCode);
+      else getLocation();
+
+      const {
+        data: { subscription: authSubscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        console.log("onAuthStateChange", { _event, session });
+        initializeUser(session);
+      });
+
+      return () => {
+        // Remove supabase channel subscription by useEffect unmount
+        if (myChannel) {
+          supabase.removeChannel(myChannel);
+        }
+
+        authSubscription.unsubscribe();
+      };
+    } catch (err) {
+      console.error("Error in AppContextProvider:", err);
+      setError(err.message);
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log("AppContextProvider mounted");
+    try {
+      // Effect to scroll to bottom on initial message load
+      if (isInitialLoad) {
+        setIsInitialLoad(false);
+        scrollToBottom();
+      }
+    } catch (err) {
+      console.error("Error in AppContextProvider:", err);
+      setError(err.message);
     }
   }, [messages]);
+
+  useEffect(() => {
+    console.log("AppContextProvider mounted");
+    try {
+      if (!newIncomingMessageTrigger) return;
+
+      if (newIncomingMessageTrigger.username === username) {
+        scrollToBottom();
+      } else {
+        setUnviewedMessageCount((prevCount) => prevCount + 1);
+      }
+    } catch (err) {
+      console.error("Error in AppContextProvider:", err);
+      setError(err.message);
+    }
+  }, [newIncomingMessageTrigger]);
 
   const getLocation = async () => {
     try {
@@ -39,6 +97,7 @@ const AppContextProvider = ({ children }) => {
         `error getting location from api.db-ip.com:`,
         error.message
       );
+      setError(error.message);
     }
   };
 
@@ -60,51 +119,6 @@ const AppContextProvider = ({ children }) => {
     setUsername(username);
     localStorage.setItem("username", username);
   };
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      initializeUser(session);
-    });
-
-    getMessagesAndSubscribe();
-
-    const storedCountryCode = localStorage.getItem("countryCode");
-    if (storedCountryCode && storedCountryCode !== "undefined")
-      setCountryCode(storedCountryCode);
-    else getLocation();
-
-    const {
-      data: { subscription: authSubscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("onAuthStateChange", { _event, session });
-      initializeUser(session);
-    });
-
-    // const { hash, pathname } = window.location;
-    // if (hash && pathname === "/") {
-    //   console.log("hash", hash);
-    //   setRouteHash(hash);
-    // }
-
-    return () => {
-      // Remove supabase channel subscription by useEffect unmount
-      if (myChannel) {
-        supabase.removeChannel(myChannel);
-      }
-
-      authSubscription.unsubscribe();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!newIncomingMessageTrigger) return;
-
-    if (newIncomingMessageTrigger.username === username) {
-      scrollToBottom();
-    } else {
-      setUnviewedMessageCount((prevCount) => prevCount + 1);
-    }
-  }, [newIncomingMessageTrigger]);
 
   const handleNewMessage = (payload) => {
     setMessages((prevMessages) => [payload.new, ...prevMessages]);
@@ -191,31 +205,45 @@ const AppContextProvider = ({ children }) => {
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   };
 
+  const value = {
+    messages,
+    loadingInitial,
+    error,
+    getMessagesAndSubscribe,
+    username,
+    setUsername,
+    randomUsername,
+    routeHash,
+    scrollRef,
+    onScroll,
+    scrollToBottom,
+    isOnBottom,
+    country: countryCode,
+    unviewedMessageCount,
+    session,
+  };
+
+  console.log("AppContextProvider rendering with value:", value);
+
   return (
-    <AppContext.Provider
-      value={{
-        messages,
-        loadingInitial,
-        error,
-        getMessagesAndSubscribe,
-        username,
-        setUsername,
-        randomUsername,
-        routeHash,
-        scrollRef,
-        onScroll,
-        scrollToBottom,
-        isOnBottom,
-        country: countryCode,
-        unviewedMessageCount,
-        session,
-      }}
-    >
-      {children}
+    <AppContext.Provider value={value}>
+      {error ? (
+        <div style={{ color: 'red', padding: '20px' }}>
+          Error: {error}
+        </div>
+      ) : (
+        children
+      )}
     </AppContext.Provider>
   );
 };
 
-const useAppContext = () => useContext(AppContext);
+const useAppContext = () => {
+  const context = useContext(AppContext);
+  if (context === undefined) {
+    throw new Error("useAppContext must be used within an AppContextProvider");
+  }
+  return context;
+};
 
 export { AppContext as default, AppContextProvider, useAppContext };

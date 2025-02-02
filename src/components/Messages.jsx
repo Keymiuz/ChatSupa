@@ -1,3 +1,5 @@
+// In src/components/Messages.jsx
+import { Image } from "@chakra-ui/react";
 import { Alert, Box, Button, Spinner } from "@chakra-ui/react";
 import { useAppContext } from "../context/appContext";
 import Message from "./Message";
@@ -19,10 +21,8 @@ export default function Messages() {
         <Button
           ml="5px"
           onClick={getMessagesAndSubscribe}
-          colorScheme="red"
-          variant="link"
         >
-          try to reconnect
+          Retry
         </Button>
       </Alert>
     );
@@ -34,8 +34,25 @@ export default function Messages() {
       </Box>
     );
 
-  return reversed.map((message) => {
-    const isYou = message.username === username;
-    return <Message key={message.id} message={message} isYou={isYou} />;
-  });
+  return (
+    <>
+      {reversed.map((message) => {
+        const isYou = message.username === username;
+        return (
+          <Message key={message.id} message={message} isYou={isYou}>
+            {message.text}
+            {message.file_url && (
+              <Image 
+                src={message.file_url} 
+                maxW="200px"
+                mt={2}
+                borderRadius="md"
+                alt="Uploaded content"
+              />
+            )}
+          </Message>
+        );
+      })}
+    </>
+  );
 }
