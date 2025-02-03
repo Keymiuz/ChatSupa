@@ -3,7 +3,7 @@
 - **Data:** PostgeSQL funcionando no [Supabase](https://supabase.io/) [@supabase_io](https://twitter.com/supabase_io) 
 - **Front-end**: React + Vite
 - **UI library**: [chakra-ui](https://chakra-ui.com/) [@chakra_ui](https://twitter.com/chakra_ui)
-- **Hospedagem**: Vou colocar no Vercel
+- **Hospedagem**: [Vou colocar no Vercel](https://chat-supa-seven.vercel.app/)
 - Bandeiras de países provenientes do Flagpedia
 
 ## Instalarar
