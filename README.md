@@ -1,20 +1,18 @@
-# Full-stack real-time chat
+# Full-stack real-time chat do Joca
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/38b6f457-50d2-42ac-b9a8-9ca962febebd/deploy-status)](https://app.netlify.com/sites/random-chat/deploys)
-
-- **Data:** PostgeSQL managed by [Supabase](https://supabase.io/) [@supabase_io](https://twitter.com/supabase_io) (awsome real-time API).
+- **Data:** PostgeSQL managed by [Supabase](https://supabase.io/) [@supabase_io](https://twitter.com/supabase_io) 
 - **Front-end**: React + Vite
 - **UI library**: [chakra-ui](https://chakra-ui.com/) [@chakra_ui](https://twitter.com/chakra_ui)
-- **Hosting**: [Netlify](https://www.netlify.com/)
-- Country flags from [Flagpedia](https://flagpedia.net)
+- **Hospedagem**: Vou colocar no Vercel
+- Bandeiras de países provenientes do Flagpedia
 
-## Install
+## Instalarar
 
-`npm install` to setup dependencies
+'npm install' para instalar as dependências
 
-## Supabase variables
+## Variáveis do Supabase
 
-Create a `.env` file with `VITE_SUPABASE_URL` and `VITE_SUPABASE_KEY` (see env.example)
+Crie um arquivo .env com as variáveis VITE_SUPABASE_URL e VITE_SUPABASE_KEY
 
 ## Setup your Supabase project
 
@@ -29,7 +27,7 @@ The following database table is required:
 | is_authenticated | BOOLEAN   |
 | timestamp        | timestamp |
 
-SQL query if not using the Supabase interface:
+A seguinte tabela no banco de dados é necessária:
 
 ```sql
 CREATE TABLE messages (
@@ -42,22 +40,17 @@ CREATE TABLE messages (
 );
 ```
 
-Note: If you're using Supabase interface, don't forget to tick `Enable Realtime` setting after you created the table.
+Observação: Se você estiver usando a interface do Supabase, não se esqueça de marcar a opção Enable Realtime após criar a tabela.
 
-## Setup GitHub authentication (optional)
-
-Follow instrunction [here](https://supabase.io/docs/guides/auth/auth-github)
+## Configurar autenticação com GitHub (opcional)
+Siga as instruções aqui: https://supabase.com/docs/guides/auth/social-login/auth-github
 
 ## Dev
 
-`npm run dev` to run server on port 3000
+'npm run dev' para rodar o server na porta 3000
 
 ## Build
 
-`npm run build` to build the react client
+'npm run build'  para compilar o cliente React
 
-# Demo
 
-[https://random-chat.netlify.app](https://random-chat.netlify.app/)
-
-!['demo'](https://random-chat.netlify.app/demo.png "demo")
