@@ -1,6 +1,6 @@
 # Full-stack real-time chat do Joca
 
-- **Data:** PostgeSQL managed by [Supabase](https://supabase.io/) [@supabase_io](https://twitter.com/supabase_io) 
+- **Data:** PostgeSQL funcionando no [Supabase](https://supabase.io/) [@supabase_io](https://twitter.com/supabase_io) 
 - **Front-end**: React + Vite
 - **UI library**: [chakra-ui](https://chakra-ui.com/) [@chakra_ui](https://twitter.com/chakra_ui)
 - **Hospedagem**: Vou colocar no Vercel
